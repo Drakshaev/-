@@ -12,3 +12,13 @@ class Mentor:
         self.name = name
         self.surname = surname
         self.courses_attached
+
+best_student = Student()
+best_student.name = 'Ruoy'
+best_student.surname = 'Eman'
+best_student.gender = 'your_gender'
+best_student.finished_courses += ['Git']
+best_student.courses_in_progress += ['Python']
+best_student.grades['Git'] = [10,10,10,10,10]
+best_student.grades['Python'] = [10,10]
+
