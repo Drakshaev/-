@@ -1,67 +1,130 @@
+import os
+import time
+from pprint import pprint
 
 
-cook_book = {
-  'Омлет': [
-    {'ingredient_name': 'Яйцо', 'quantity': 2, 'measure': 'шт.'},
-    {'ingredient_name': 'Молоко', 'quantity': 100, 'measure': 'мл'},
-    {'ingredient_name': 'Помидор', 'quantity': 2, 'measure': 'шт'}
-    ],
-  'Утка по-пекински': [
-    {'ingredient_name': 'Утка', 'quantity': 1, 'measure': 'шт'},
-    {'ingredient_name': 'Вода', 'quantity': 2, 'measure': 'л'},
-    {'ingredient_name': 'Мед', 'quantity': 3, 'measure': 'ст.л'},
-    {'ingredient_name': 'Соевый соус', 'quantity': 60, 'measure': 'мл'}
-    ],
-  'Запеченный картофель': [
-    {'ingredient_name': 'Картофель', 'quantity': 1, 'measure': 'кг'},
-    {'ingredient_name': 'Чеснок', 'quantity': 3, 'measure': 'зубч'},
-    {'ingredient_name': 'Сыр гауда', 'quantity': 100, 'measure': 'г'},
-    ]
-  }
-
-def my_cook_book():
-    with open('файл.txt', encoding='utf-8') as file:
-
-        line = file.readlines()
+def read_cookbook():
+    file_path = os.path.join(os.getcwd(), 'файл.txt')
+    cook_book = {}
+    with open(file_path, 'r', encoding='utf-8') as file:
         for line in file:
-            name, _, *args = line
-            tmp = []
-            for arg in args:
-                ingredient_name, quantity, measure = map(lambda x: int(x) if x.isdigit() else x, arg.split(' | '))
-                tmp.append({'ingredient_name': ingredient_name, 'quantity': quantity, 'measure': measure})
-            cook_book[name] = tmp
+            dish_name = line.strip()
+            count = int(file.readline())
+            ing_list = list()
+            for item in range(count):
+                ingrs = {}
+                ingr = file.readline().strip()
+                ingrs['ingredient_name'], ingrs['quantity'], ingrs['measure'] = ingr.split('|')
+                ingrs['quantity'] = int(ingrs['quantity'])
+                ing_list.append(ingrs)
+            file.readline()
+            cook_book[dish_name] = ing_list
     return cook_book
-print(my_cook_book())
 
+
+#задание номер 2
 
 def get_shop_list_by_dishes(dishes, person_count):
-    shop_list = {}
-    for dish in dishes:
-        for dish in cook_book[dish]:
-            new_shop_list_item = dict(dish)
+    ingr_list = dict()
 
-            new_shop_list_item['quantity'] *= person_count
-            if new_shop_list_item['ingridient_name'] not in shop_list:
-                shop_list[new_shop_list_item['ingridient_name']] = new_shop_list_item
-            else:
-                shop_list[new_shop_list_item['ingridient_name']]['quantity'] += new_shop_list_item['quantity']
-        return shop_list
+    for dish_name in dishes:  # итерируем список полученных блюд
+        if dish_name in cook_book:
+            for ings in cook_book[dish_name]:  # итерируем ингридиенты в блюде
+                meas_quan_list = dict()
+                if ings['ingredient_name'] not in ingr_list:
+                    meas_quan_list['measure'] = ings['measure']
+                    meas_quan_list['quantity'] = ings['quantity'] * person_count
+                    ingr_list[ings['ingredient_name']] = meas_quan_list
+                else:
+                    ingr_list[ings['ingredient_name']]['quantity'] = ingr_list[ings['ingredient_name']]['quantity'] + \
+                                                                     ings['quantity'] * person_count
 
-
-def print_shop_list(shop_list):
-    for shop_list_item in shop_list.values():
-        print('{} {} {}'.format(shop_list_item['ingridient_name'], shop_list_item['quantity'],
-                                shop_list_item['measure']))
-
-
-def create_shop_list():
-    person_count = int(input('Введите количество человек: '))
-    dishes = input('Введите блюда в расчете на одного человека (через запятую): ') \
-        .lower().split(', ')
-    shop_list = get_shop_list_by_dishes(dishes, person_count)
-    print_shop_list(shop_list)
-print(create_shop_list())
+        else:
+            print(f'\n"Такого блюда нет в списке!"\n')
+    return ingr_list
 
 
-file = open('1.txt')
-print(type(file)"\n")
+# Задание номер три
+
+
+
+def rewrite_file(path1=None, path2=None, path3=None):
+    if path1 or path2 or path3 is None:
+        path1 = '1.txt'
+        path2 = '2.txt'
+        path3 = '3.txt'
+        os.chdir('Новая папка')
+        outout_file = "rewrite_file.txt"
+        file1_path = os.path.join(os.getcwd(), path1)
+        file2_path = os.path.join(os.getcwd(), path2)
+        file3_path = os.path.join(os.getcwd(), path3)
+        with open(file1_path, 'r', encoding='utf-8') as f1:
+            file1 = f1.readlines()
+        with open(file2_path, 'r', encoding='utf-8') as f2:
+            file2 = f2.readlines()
+        with open(file3_path, 'r', encoding='utf-8') as f3:
+            file3 = f3.readlines()
+        with open(outout_file, 'w', encoding='utf-8') as f_total:
+
+            if len(file1) < len(file2) and len(file1) < len(file3):
+                f_total.write(path1 + '\n')
+                f_total.write(str(len(file1)) + '\n')
+                f_total.writelines(file1)
+                f_total.write('\n')
+            elif len(file2) < len(file1) and len(file2) < len(file3):
+                f_total.write(path2 + '\n')
+                f_total.write(str(len(file2)) + '\n')
+                f_total.writelines(file2)
+                f_total.write('\n')
+            elif len(file3) < len(file1) and len(file3) < len(file2):
+                f_total.write(path3 + '\n')
+                f_total.write(str(len(file3)) + '\n')
+                f_total.writelines(file3)
+                f_total.write('\n')
+            if len(file2) > len(file1) > len(file3) or len(file2) < len(file1) < len(
+                    file3):
+                f_total.write(path1 + '\n')
+                f_total.write(str(len(file1)) + '\n')
+                f_total.writelines(file1)
+                f_total.write('\n')
+            elif len(file1) > len(file2) > len(file3) or len(file2) > len(file1) and len(file2) < len(
+                    file3):
+                f_total.write(path2 + '\n')
+                f_total.write(str(len(file2)) + '\n')
+                f_total.writelines(file2)
+                f_total.write('\n')
+            elif len(file1) > len(file3) > len(file2) or len(file3) > len(file1) and len(file3) < len(
+                    file2):
+                f_total.write(path3 + '\n')
+                f_total.write(str(len(file3)) + '\n')
+                f_total.writelines(file3)
+                f_total.write('\n')
+            if len(file1) > len(file2) and len(file1) > len(file3):
+                f_total.write(path1 + '\n')
+                f_total.write(str(len(file1)) + '\n')
+                f_total.writelines(file1)
+            elif len(file2) > len(file1) and len(file2) > len(file3):
+                f_total.write(path2 + '\n')
+                f_total.write(str(len(file2)) + '\n')
+                f_total.writelines(file2)
+            elif len(file3) > len(file1) and len(file3) > len(file2):
+                f_total.write(path3 + '\n')
+                f_total.write(str(len(file3)) + '\n')
+                f_total.writelines(file3)
+    else:
+        print('Давай лучше без параметров')
+    return
+
+
+if __name__ == '__main__':
+    filename = "файл.txt"
+    cook_book = read_cookbook()
+    print('Задание 1------------------------------------------------------------')
+    time.sleep(1)
+    print(cook_book)
+    print('Задание 2------------------------------------------------------------')
+    pprint(get_shop_list_by_dishes(dishes=['Запеченный картофель', 'Омлет'], person_count=3))
+
+    time.sleep(2)
+    print('Задание 3------------------------------------------------------------')
+    rewrite_file()
